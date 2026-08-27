@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cute Birthday Wish Zaiddd</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Outfit:wght@400;600&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: linear-gradient(135deg, #ffe5ec 0%, #f0e6ff 50%, #e8f0fe 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Outfit', sans-serif;
+      overflow: hidden;
+      position: relative;
+      transition: background 0.8s ease;
+    }
+
+    body.dark-room {
+      background: #141026;
+    }
+
+    /* Top Lights Strand */
+    .lights-strand {
+      position: fixed;
+      top: -10px;
+      left: 0;
+      width: 100%;
+      display: flex;
+      justify-content: space-around;
+      padding: 0 10px;
+      z-index: 10;
+      opacity: 0;
+      transition: opacity 0.8s ease;
+      pointer-events: none;
+    }
+
+    body.lights-active .lights-strand {
+      opacity: 1;
+    }
+
+    .light-holder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transform-origin: top center;
+      animation: swing 3s infinite ease-in-out alternate;
+    }
+
+    .string {
+      width: 2px;
+      height: 35px;
+      background: rgba(0, 0, 0, 0.15);
+    }
+
+    body.dark-room .string {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .bulb {
+      width: 16px;
+      height: 24px;
+      border-radius: 50% 50% 45% 45%;
+      position: relative;
+      animation: glow 1.2s infinite alternate ease-in-out;
+    }
+
+    .bulb::before {
+      content: '';
+      position: absolute;
+      top: -4px;
+      left: 4px;
+      width: 8px;
+      height: 4px;
+      background: #444;
+      border-radius: 2px;
+    }
+
+    .light-holder:nth-child(1) { animation-duration: 2.5s; }
+    .light-holder:nth-child(2) { animation-duration: 3.2s; animation-delay: -0.5s; }
+    .light-holder:nth-child(3) { animation-duration: 2.8s; animation-delay: -1s; }
+    .light-holder:nth-child(4) { animation-duration: 3.5s; animation-delay: -0.2s; }
+    .light-holder:nth-child(5) { animation-duration: 2.7s; animation-delay: -0.7s; }
+    .light-holder:nth-child(6) { animation-duration: 3.1s; animation-delay: -1.2s; }
+
+    .light-holder:nth-child(1) .bulb { background: #ff496c; color: #ff496c; }
+    .light-holder:nth-child(2) .bulb { background: #ffb703; color: #ffb703; }
+    .light-holder:nth-child(3) .bulb { background: #06d6a0; color: #06d6a0; }
+    .light-holder:nth-child(4) .bulb { background: #118ab2; color: #118ab2; }
+    .light-holder:nth-child(5) .bulb { background: #9c89ff; color: #9c89ff; }
+    .light-holder:nth-child(6) .bulb { background: #ff758f; color: #ff758f; }
+
+    @keyframes swing {
+      0% { transform: rotate(-8deg); }
+      100% { transform: rotate(8deg); }
+    }
+
+    @keyframes glow {
+      from { box-shadow: 0 0 4px currentColor; opacity: 0.7; }
+      to { box-shadow: 0 0 18px currentColor, 0 0 30px currentColor; opacity: 1; }
+    }
+
+    /* Intro Overlay Fix */
+    .intro-screen {
+      position: fixed;
+      inset: 0;
+      background: #ffe5ec;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 20;
+      transition: opacity 0.8s ease;
+    }
+
+    .intro-text {
+      font-family: 'Fredoka', cursive;
+      font-size: 26px;
+      color: #ff496c;
+      text-align: center;
+      padding: 0 20px;
+      opacity: 0;
+      transition: opacity 0.8s ease;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .intro-text.show {
+      opacity: 1;
+    }
+
+    /* Card Layout */
+    .card-wrapper {
+      width: 88%;
+      max-width: 380px;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(10px);
+      padding: 30px 24px;
+      border-radius: 32px;
+      text-align: center;
+      box-shadow: 0 15px 35px rgba(230, 180, 200, 0.35);
+      border: 2px solid #ffffff;
+      transition: all 0.5s ease;
+      z-index: 2;
+    }
+
+    body.dark-room .card-wrapper {
+      background: rgba(30, 24, 48, 0.9);
+      border-color: rgba(255, 255, 255, 0.15);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+    }
+
+    .step {
+      display: none;
+      animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+
+    .step.active {
+      display: block;
+    }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .sub-tag {
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: #ff758f;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .note-tag {
+      font-size: 13px;
+      color: #b5838d;
+      margin-bottom: 8px;
+    }
+
+    h2 {
+      font-family: 'Fredoka', cursive;
+      font-size: 24px;
+      color: #6b4c57;
+      margin-bottom: 12px;
+    }
+
+    body.dark-room h2 {
+      color: #f0e6ff;
+    }
+
+    p.desc {
+      font-size: 14px;
+      color: #888;
+      margin-bottom: 20px;
+      line-height: 1.4;
+    }
+
+    body.dark-room p.desc {
+      color: #aaa;
+    }
+
+    .img-box {
+      width: 120px;
+      height: 120px;
+      background: #fff0f3;
+      border-radius: 24px;
+      margin: 0 auto 18px auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px dashed #ffb3c1;
+      overflow: hidden;
+    }
+
+    .btn-group {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .btn {
+      background: linear-gradient(135deg, #ff758f, #ff496c);
+      color: #fff;
+      border: none;
+      padding: 12px 28px;
+      font-size: 16px;
+      font-family: 'Fredoka', cursive;
+      border-radius: 20px;
+      cursor: pointer;
+      box-shadow: 0 8px 18px rgba(255, 117, 143, 0.35);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 22px rgba(255, 117, 143, 0.45);
+    }
+
+    .btn-no {
+      background: #f0f0f0;
+      color: #999;
+      box-shadow: none;
+    }
+
+    /* Second Code Styles */
+    .inner-box {
+      background: rgba(255, 240, 245, 0.7);
+      padding: 15px;
+      border-radius: 20px;
+      margin: 15px 0;
+      border: 1px solid rgba(255, 182, 193, 0.3);
+    }
+
+    .gif-img {
+      width: 120px;
+      height: auto;
+      border-radius: 10px;
+      margin: 5px 0;
+    }
+
+    /* Floating Balloons */
+    #balloon-container {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 5;
+      overflow: hidden;
+    }
+
+    .balloon {
+      position: absolute;
+      bottom: -100px;
+      width: 45px;
+      height: 55px;
+      border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
+      animation: floatUp 5s linear forwards;
+    }
+
+    .balloon::after {
+      content: "";
+      position: absolute;
+      bottom: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 2px;
+      height: 14px;
+      background: rgba(0,0,0,0.2);
+    }
+
+    @keyframes floatUp {
+      0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(-110vh) rotate(20deg); opacity: 0.9; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Intro Screen Text Sequence -->
+  <div class="intro-screen" id="introScreen">
+    <div class="intro-text" id="introText">It’s your special day.</div>
+  </div>
+
+  <!-- Top Lights Strand -->
+  <div class="lights-strand">
+    <div class="light-holder"><div class="string"></div><div class="bulb"></div></div>
+    <div class="light-holder"><div class="string"></div><div class="bulb"></div></div>
+    <div class="light-holder"><div class="string"></div><div class="bulb"></div></div>
+    <div class="light-holder"><div class="string"></div><div class="bulb"></div></div>
+    <div class="light-holder"><div class="string"></div><div class="bulb"></div></div>
+    <div class="light-holder"><div class="string"></div><div class="bulb"></div></div>
+  </div>
+
+  <!-- Balloon Container -->
+  <div id="balloon-container"></div>
+
+  <div class="card-wrapper">
+    
+    <!-- Step 1: Ready to Open Card -->
+    <div class="step active" id="step1">
+      <div class="sub-tag">✦ U DA BIRTHDAY STAR ✦</div>
+      <div class="img-box">
+        <img src="https://media3.giphy.com/media/v1.Y2lkPTZjMDliOTUybms4NWl5Z2FocjI5NmZqa242MHVyczUybXNyZXpqcjluaWNpZWc5aSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/RwACO0nfVWJVqPZqts/giphy.gif" alt="Cute GIF" style="width: 100%; height: 100%; object-fit: cover;">
+      </div>
+      <div class="note-tag">🌸 A LITTLE NOTE FOR YOU 🌸</div>
+      <h2>Ready to open it?</h2>
+      <div class="btn-group">
+        <button class="btn" onclick="goToStep(2)">Yes!</button>
+        <button class="btn btn-no" onclick="alert('Please press Yes! 💕')">No</button>
+      </div>
+    </div>
+
+    <!-- Step 2: Dark Room Screen -->
+    <div class="step" id="step2">
+      <div class="sub-tag">✦ SHHH! ✦</div>
+      <div style="font-size: 50px; margin: 15px 0;">🌙 🕯️ ✨</div>
+      <h2>The room is dark...</h2>
+      <button class="btn" onclick="turnOnLights()">Turn on the lights 💡</button>
+    </div>
+
+    <!-- Step 3: Music & Decorate Screen -->
+    <div class="step" id="step3">
+      <div class="sub-tag">✦ MUSIC & VIBES ✦</div>
+      <div style="font-size: 50px; margin: 15px 0;">✨ 🎶 ✨</div>
+      <h2>Click Below 👇🏻</h2>
+      <button class="btn" onclick="turnOnMusic()">Set The Mood 🎵</button>
+    </div>
+
+    <!-- Step 4: Celebration & Release Balloons -->
+    <div class="step" id="step4">
+      <div class="sub-tag">✦ CELEBRATION MODE ✦</div>
+      <h2 style="font-size: 28px; color: #ff496c; margin-bottom: 8px;">Happy Birthday Kuchuu Puchuu </h2>
+      <img src="https://media2.giphy.com/media/v1.Y2lkPTZjMDliOTUyaGQ5OTUzbHFtYjhxNWZxZXVxdHJkcGd2aXRwZXVhOWg5Z2JoanRweiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/TjSPQgowhhJdHgvnwA/giphy.gif" alt="Celebration GIF" class="gif-img" style="width: 130px; margin-bottom: 12px; border-radius: 12px;">
+      <p class="desc">A tiny celebration page made with lots of love. 💕</p>
+      <button class="btn" id="balloonBtn" onclick="releaseBalloons()">Release the balloons 🎈</button>
+      <button class="btn" id="nextStepBtn" style="display: none; margin-top: 10px;" onclick="goToStep(5)">Cut the cake 🎂</button>
+    </div>
+
+    <!-- Step 5: Second Code Integration (Cake Cutting & Final Wishes) -->
+    <div class="step" id="step5">
+      <div id="cake-app-container">
+        <h2>Cake Time ✨</h2>
+        <p>Cut the cake and make a wish</p>
+        <div class="img-box" style="margin: 15px auto;">
+          <svg viewBox="0 0 100 100" width="70" height="70">
+            <rect x="20" y="50" width="60" height="35" rx="8" fill="#ffb3c1"/>
+            <path d="M 20 50 Q 35 38 50 50 Q 65 38 80 50" fill="none" stroke="#fff" stroke-width="5"/>
+            <rect x="47" y="22" width="6" height="28" fill="#ffb703" rx="2"/>
+            <circle cx="50" cy="16" r="5" fill="#ff496c"/>
+          </svg>
+        </div>
+        <p style="font-size: 13px; color: #777;">Click below to cut the cake</p>
+        <button class="btn" onclick="showWishPage()">Cut Cake 🔪</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Background Music with Vocaroo Direct Link -->
+  <audio id="bgMusic" loop src="https://media.vocaroo.com/mp3/1jRDPIlQOU95"></audio>
+
+  <script>
+    // Text Intro Sequence
+    window.addEventListener('DOMContentLoaded', () => {
+      const introText = document.getElementById('introText');
+      const introScreen = document.getElementById('introScreen');
+
+      setTimeout(() => {
+        introText.classList.add('show');
+      }, 300);
+
+      setTimeout(() => {
+        introText.classList.remove('show');
+        setTimeout(() => {
+          introText.innerText = "I made a little surprise just for you!";
+          introText.classList.add('show');
+        }, 800);
+      }, 2500);
+
+      setTimeout(() => {
+        introScreen.style.opacity = '0';
+        setTimeout(() => {
+          introScreen.style.display = 'none';
+        }, 800);
+      }, 5000);
+    });
+
+    function goToStep(stepNum) {
+      document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+      document.getElementById('step' + stepNum).classList.add('active');
+
+      if (stepNum === 2) {
+        document.body.classList.add('dark-room');
+      }
+    }
+
+    function turnOnLights() {
+      document.body.classList.remove('dark-room');
+      document.body.classList.add('lights-active');
+      goToStep(3);
+    }
+
+    function turnOnMusic() {
+      document.getElementById('bgMusic').play().catch(() => {});
+      goToStep(4);
+    }
+
+    function releaseBalloons() {
+      confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
+
+      const container = document.getElementById('balloon-container');
+      const colors = ['#ff758f', '#ffb703', '#06d6a0', '#118ab2', '#9c89ff', '#ffb3c1'];
+
+      for (let i = 0; i < 25; i++) {
+        let balloon = document.createElement('div');
+        balloon.className = 'balloon';
+        
+        let randomColor = colors[Math.floor(Math.random() * colors.length)];
+        let randomLeft = Math.random() * 90;
+        let randomDelay = Math.random() * 2;
+        let randomDuration = 4 + Math.random() * 3;
+
+        balloon.style.backgroundColor = randomColor;
+        balloon.style.left = randomLeft + '%';
+        balloon.style.animationDelay = randomDelay + 's';
+        balloon.style.animationDuration = randomDuration + 's';
+
+        container.appendChild(balloon);
+
+        setTimeout(() => {
+          balloon.remove();
+        }, (randomDelay + randomDuration) * 1000);
+      }
+
+      // Show next button after balloons start floating
+      setTimeout(() => {
+        document.getElementById('balloonBtn').style.display = 'none';
+        document.getElementById('nextStepBtn').style.display = 'inline-block';
+      }, 1500);
+    }
+
+    // Second Code Functions
+    function showWishPage() {
+      const container = document.getElementById('cake-app-container');
+      container.innerHTML = `
+        <h2>Wish Time ✨</h2>
+        <p style="margin-bottom: 5px;">Close your eyes make a wish</p>
+        <div class="inner-box">
+            <h3 style="color: #d85774; margin: 0 0 5px 0; font-weight: 600; font-size: 18px;">Happy Birthday to Youuu!</h3>
+            <img src="https://media3.giphy.com/media/v1.Y2lkPTZjMDliOTUyb2h0M2IyMTNuMWN4YjlkNTJsOThmdGo0enY0aWZhYTI4ZjNpZHZiYiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/2ozIP1OKE6cki3cKzA/giphy.gif" alt="Birthday GIF" class="gif-img">
+            <h4 style="margin: 5px 0; font-weight: 600; color: #444; font-size: 15px;">MAKE A WISH</h4>
+            <p style="font-size: 13px; color: #555; margin: 0;">Close your eyes and make a wish</p>
+            <p style="font-size: 11px; color: #777; margin-top: 3px;">When you're ready, tap the button below.</p>
+        </div>
+        <button class="btn" onclick="showFinalMessage()">I Made My Wish</button>
+      `;
+    }
+
+    function showFinalMessage() {
+      const container = document.getElementById('cake-app-container');
+      container.innerHTML = `
+        <h3 style="color: #d85774; font-weight: 600; margin-top: 0;">Dear Kuchuu Puchuuu 😚,</h3>
+        <img src="https://media3.giphy.com/media/v1.Y2lkPTZjMDliOTUydHdlZ3loYnR1ZjFwa2h0aWFnZ2NyYXF2bnlicmtkMjh0MG80M2phaiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/FBTJHH4G7ols5Hj22D/giphy.gif" alt="Final Wish GIF" class="gif-img" style="width: 120px; margin: 8px 0; border-radius: 12px;">
+        <p style="text-align: left; font-size: 13px; color: #444; line-height: 1.6; font-weight: 300; margin: 10px 0;">
+            <strong>H</strong>appy Birthday to someone who makes life feel softer, brighter, and a little more fun.<br><br>
+            <strong>I</strong>hope this year gives you more peace, confidence, and more moments that remind you how loved you are.<br><br>
+            <strong>Y</strong>ou deserve good people, beautiful memories, and the kind of happiness that stays.
+        </p>
+        <p style="font-style: italic; color: #d85774; margin-top: 10px; font-size: 13px;">With all my love,<br><strong style="font-weight: 600;">Always cheering for you</strong></p>
+        <button class="btn" onclick="location.reload()">Restart</button>
+      `;
+    }
+  </script>
+
+</body>
+</html>
